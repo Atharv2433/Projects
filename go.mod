@@ -1,6 +1,6 @@
 module LibraryManagementSystem
 
-go 1.24.2
+go 1.23
 
 require github.com/gofiber/fiber v1.14.6
 
