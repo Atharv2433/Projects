@@ -12,23 +12,20 @@ pipeline {
             }
         }
 
+        
         stage('Install Go') {
             steps {
                 script {
-                    if (isUnix()) {
+                    if (!isUnix()) {
+                        bat """
+                            set PATH=%PATH%;C:\\ProgramData\\chocolatey\\bin
+                            C:\\ProgramData\\chocolatey\\bin\\choco.exe install golang --version=%GO_VERSION% -y
+                        """
+                    } else {
                         sh """
                             curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz
                             sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
                         """
-                    } else {
-                        bat '''
-                            @echo off
-                            where choco >nul 2>&1
-                            if %ERRORLEVEL% NEQ 0 (
-                                powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
-                            )
-                            choco install golang --version=%GO_VERSION% -y
-                        '''
                     }
                 }
             }
