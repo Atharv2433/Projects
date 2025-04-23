@@ -31,9 +31,9 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 bat """
-                    set PATH=%PATH%;C:\\Go\\bin
-                    set GOPATH=%WORKSPACE%\\go
-                    set GOROOT=C:\\Go
+                    set "GOROOT=C:\\Program Files\\Go"
+                    set "GOPATH=%WORKSPACE%\\go"
+                    set "PATH=%GOROOT%\\bin;%PATH%"
                     go mod tidy
                 """
             }
