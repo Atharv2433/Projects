@@ -2,9 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GO_VERSION = '1.19' // Specify your Go version
-        GO_PATH = '/usr/local/go'
-        GOPATH = "${env.WORKSPACE}/go"
+        GO_VERSION = '1.19'
     }
 
     stages {
@@ -17,31 +15,20 @@ pipeline {
         stage('Install Go') {
             steps {
                 script {
-                    if (!isUnix()) {
-                        bat "choco install golang --version=${GO_VERSION}"
-                    } else {
-                        sh "curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz"
-                        sh "sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz"
-                    }
-                }
-            }
-        }
-
-        stage('Set Go Environment') {
-            steps {
-                script {
                     if (isUnix()) {
                         sh """
-                            export PATH=\$PATH:/usr/local/go/bin
-                            export GOPATH=\$WORKSPACE/go
-                            export GOROOT=/usr/local/go
+                            curl -OL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz
+                            sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
                         """
                     } else {
-                        bat """
-                            set PATH=%PATH%;C:\\Go\\bin
-                            set GOPATH=%WORKSPACE%\\go
-                            set GOROOT=C:\\Go
-                        """
+                        bat '''
+                            @echo off
+                            where choco >nul 2>&1
+                            if %ERRORLEVEL% NEQ 0 (
+                                powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+                            )
+                            choco install golang --version=%GO_VERSION% -y
+                        '''
                     }
                 }
             }
@@ -50,7 +37,21 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'go mod tidy'
+                    if (isUnix()) {
+                        sh """
+                            export PATH=\$PATH:/usr/local/go/bin
+                            export GOPATH=\$WORKSPACE/go
+                            export GOROOT=/usr/local/go
+                            go mod tidy
+                        """
+                    } else {
+                        bat """
+                            set PATH=%PATH%;C:\\Go\\bin
+                            set GOPATH=%WORKSPACE%\\go
+                            set GOROOT=C:\\Go
+                            go mod tidy
+                        """
+                    }
                 }
             }
         }
@@ -58,8 +59,21 @@ pipeline {
         stage('Run Migrations') {
             steps {
                 script {
-                    // Replace with your migration command
-                    sh 'go run cmd/migrate/main.go'
+                    if (isUnix()) {
+                        sh """
+                            export PATH=\$PATH:/usr/local/go/bin
+                            export GOPATH=\$WORKSPACE/go
+                            export GOROOT=/usr/local/go
+                            go run cmd/migrate/main.go
+                        """
+                    } else {
+                        bat """
+                            set PATH=%PATH%;C:\\Go\\bin
+                            set GOPATH=%WORKSPACE%\\go
+                            set GOROOT=C:\\Go
+                            go run cmd\\migrate\\main.go
+                        """
+                    }
                 }
             }
         }
@@ -67,7 +81,21 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    sh 'go test ./...'
+                    if (isUnix()) {
+                        sh """
+                            export PATH=\$PATH:/usr/local/go/bin
+                            export GOPATH=\$WORKSPACE/go
+                            export GOROOT=/usr/local/go
+                            go test ./...
+                        """
+                    } else {
+                        bat """
+                            set PATH=%PATH%;C:\\Go\\bin
+                            set GOPATH=%WORKSPACE%\\go
+                            set GOROOT=C:\\Go
+                            go test ./...
+                        """
+                    }
                 }
             }
         }
@@ -75,7 +103,21 @@ pipeline {
         stage('Run Application') {
             steps {
                 script {
-                    sh 'go run main.go'
+                    if (isUnix()) {
+                        sh """
+                            export PATH=\$PATH:/usr/local/go/bin
+                            export GOPATH=\$WORKSPACE/go
+                            export GOROOT=/usr/local/go
+                            go run main.go
+                        """
+                    } else {
+                        bat """
+                            set PATH=%PATH%;C:\\Go\\bin
+                            set GOPATH=%WORKSPACE%\\go
+                            set GOROOT=C:\\Go
+                            go run main.go
+                        """
+                    }
                 }
             }
         }
