@@ -4,7 +4,8 @@ pipeline {
     environment {
         GO_VERSION = '1.19'
         GOPATH = "${env.WORKSPACE}\\go"
-        GOROOT = "C:\\Go"
+        GOROOT = "C:\\Program Files\\Go"
+        PATH = "${env.PATH};${GOROOT}"
     }
 
     stages {
