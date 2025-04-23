@@ -33,7 +33,8 @@ pipeline {
                 bat """
                     set "GOROOT=C:\\Program Files\\Go"
                     set "GOPATH=%WORKSPACE%\\go"
-                    set "PATH=%GOROOT%\\bin;%PATH%"
+                    set "PATH=%GOROOT%\\bin;%PATH%"\
+                    go version
                     go mod tidy
                 """
             }
