@@ -1,0 +1,367 @@
+CREATE TABLE book_info (
+    book_name text,
+    book_category text
+    book_published_date text,
+    book_author text,
+    book_description text,
+    book_edition text,
+    book_language text,
+    book_price text,
+    book_publisher text,
+    PRIMARY KEY (book_name , book_category)
+    
+    WITH CLUSTERING ORDER BY (book_published_date ASC));
+
+
+CREATE KEYSPACE Updatedlibrary WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '2'}  AND durable_writes = true;
+
+Here's a revised version of your CREATE TABLE statement with some improvements:
+
+```
+CREATE TABLE book_info (
+  book_id UUID PRIMARY KEY,
+  book_name TEXT,
+  book_category TEXT,
+  book_published_date DATE,
+  book_author TEXT,
+  book_description TEXT,
+  book_edition TEXT,
+  book_language TEXT,
+  book_price DECIMAL(10, 2),
+  book_publisher TEXT
+) WITH CLUSTERING ORDER BY (book_published_date ASC);
+```
+
+However, since you're using a PRIMARY KEY constraint with a single column `book_id`, the CLUSTERING ORDER BY clause won't work directly. If you want to cluster the data by `book_published_date`, you can create a composite primary key like this:
+
+```
+CREATE TABLE book_info (
+  book_id UUID,
+  book_name TEXT,
+  book_category TEXT,
+  book_published_date DATE,
+  book_author TEXT,
+  book_description TEXT,
+  book_edition TEXT,
+  book_language TEXT,
+  book_price DECIMAL(10, 2),
+  book_publisher TEXT,
+  PRIMARY KEY (book_id, book_published_date)
+) WITH CLUSTERING ORDER BY (book_published_date ASC);
+```
+
+Or, if you want to keep `book_name` and `book_category` in the primary key:
+
+```
+CREATE TABLE book_info (
+  book_name TEXT,
+  book_category TEXT,
+  book_published_date DATE,
+  book_author TEXT,
+  book_description TEXT,
+  book_edition TEXT,
+  book_language TEXT,
+  book_price DECIMAL(10, 2),
+  book_publisher TEXT,
+  PRIMARY KEY ((book_name, book_category), book_published_date)
+) WITH CLUSTERING ORDER BY (book_published_date ASC);
+```
+
+Choose the one that best fits your use case.
+
+Cassandra's CQL (Cassandra Query Language) doesn't support the `DECIMAL` data type. Instead, you can use `DECIMAL` is not supported but you can use `int` or `float` for numeric values.
+
+Here's the corrected table creation query:
+
+```
+CREATE TABLE book_info (
+  book_name TEXT,
+  book_category TEXT,
+  book_published_date DATE,
+  book_author TEXT,
+  book_description TEXT,
+  book_edition TEXT,
+  book_language TEXT,
+  book_price FLOAT,
+  book_publisher TEXT,
+  PRIMARY KEY ((book_name, book_category), book_published_date)
+) WITH CLUSTERING ORDER BY (book_published_date ASC);
+```
+
+If you need precise decimal control, consider storing the price as an integer (e.g., cents) or using a string representation.
+
+Here are a few sample rows to insert into the `book_info` table:
+
+```
+INSERT INTO book_info (book_name, book_category, book_published_date, book_author, book_description, book_edition, book_language, book_price, book_publisher)
+VALUES ('To Kill a Mockingbird', 'Fiction', '1960-07-11', 'Harper Lee', 'Classic novel about racial injustice', 'First Edition', 'English', 15.99, 'J.B. Lippincott & Co.');
+
+INSERT INTO book_info (book_name, book_category, book_published_date, book_author, book_description, book_edition, book_language, book_price, book_publisher)
+VALUES ('1984', 'Dystopian', '1949-06-08', 'George Orwell', 'Dystopian novel about totalitarian future', 'Reprint Edition', 'English', 12.99, 'Secker & Warburg');
+
+INSERT INTO book_info (book_name, book_category, book_published_date, book_author, book_description, book_edition, book_language, book_price, book_publisher)
+VALUES ('Pride and Prejudice', 'Romance', '1813-01-28', 'Jane Austen', 'Classic romance novel about societal expectations', 'Annotated Edition', 'English', 10.99, 'Thomas Egerton');
+```
+
+These inserts demonstrate how to add data to the `book_info` table with various book details.
+
+
+INSERT INTO library2.book_info (book_name, book_category, book_published_date, book_author, book_description, book_edition, book_language, book_price, book_publisher) VALUES ('1984', 'Dystopian', '1949-06-08', 'George-Orwell', 'A chilling depiction of a totalitarian regime and pervasive government surveillance.', '1st', 'English', '15.00', 'Secker & Warburg');
+CREATE TABLE library.customer_book_inventory (
+    customer_name text,
+    customer_ageGroup text,
+    customer_gender text,
+    purchase_date timestamp,
+    book_quantity int,
+    book_name text,
+    total_amount int,
+    mode_of_payment text,
+    list_current_books set<TEXT>,
+    list_previous_books set<TEXT>,
+    PRIMARY KEY (customer_gender, customer_ageGroup)
+) WITH CLUSTERING ORDER BY (purchase_date DESC)
+
+CREATE TABLE customer_book_inventory_by_name (
+  customer_name text,
+  customer_gender text,
+  purchase_date DATE,
+  book_quantity int,
+  book_name text,
+  total_amount int,
+  mode_of_payment text,
+  list_current_books set<text>,
+  list_previous_books set<text>,
+  PRIMARY KEY (customer_name, customer_gender),purchase_date)
+ WITH CLUSTERING ORDER BY (purchase_date DESC);
+
+ The error occurs because you're declaring `purchase_date` twice in the primary key definition.
+
+The correct syntax is to define the primary key as `(partition_key, clustering_column1, clustering_column2, ...)`. In your case, you want `customer_name` as the partition key, and `customer_gender` and `purchase_date` as clustering columns.
+
+Here's the corrected query:
+
+```
+CREATE TABLE customer_book_inventory (
+  customer_name text,
+  customer_gender text,
+  purchase_date DATE,
+  book_quantity int,
+  book_name text,
+  total_amount int,
+  mode_of_payment text,
+  list_current_books set<text>,
+  list_previous_books set<text>,
+  PRIMARY KEY (customer_name, customer_gender, purchase_date)
+) WITH CLUSTERING ORDER BY (customer_gender ASC, purchase_date DESC);
+```
+
+This will create a table with `customer_name` as the partition key, and `customer_gender` and `purchase_date` as clustering columns. The data will be ordered by `purchase_date` in descending order.
+
+
+Here are some sample rows to insert into the `customer_book_inventory` table:
+
+```
+INSERT INTO customer_book_inventory (customer_name, customer_gender, purchase_date, book_quantity, book_name, total_amount, mode_of_payment, list_current_books, list_previous_books)
+VALUES ('John Doe', 'Male', '2022-01-01', 2, 'Book A', 50, 'Credit Card', {'Book A', 'Book B'}, {'Book C', 'Book D'});
+
+INSERT INTO customer_book_inventory (customer_name, customer_gender, purchase_date, book_quantity, book_name, total_amount, mode_of_payment, list_current_books, list_previous_books)
+VALUES ('John Doe', 'Male', '2022-01-15', 1, 'Book E', 20, 'Cash', {'Book E'}, {'Book F', 'Book G'});
+
+INSERT INTO customer_book_inventory (customer_name, customer_gender, purchase_date, book_quantity, book_name, total_amount, mode_of_payment, list_current_books, list_previous_books)
+VALUES ('Jane Doe', 'Female', '2022-02-01', 3, 'Book H', 75, 'Debit Card', {'Book H', 'Book I', 'Book J'}, {'Book K', 'Book L'});
+
+INSERT INTO customer_book_inventory (customer_name, customer_gender, purchase_date, book_quantity, book_name, total_amount, mode_of_payment, list_current_books, list_previous_books)
+VALUES ('Jane Doe', 'Female', '2022-03-01', 2, 'Book M', 40, 'Credit Card', {'Book M', 'Book N'}, {'Book O', 'Book P'});
+```
+
+These inserts demonstrate how to add data to the `customer_book_inventory` table with various customer and book details.
+
+Note that the primary key is defined as `(customer_name, customer_gender, purchase_date)`, so you can't insert duplicate rows with the same `customer_name`, `customer_gender`, and `purchase_date`. If you try to insert a duplicate row, Cassandra will overwrite the existing row.
+
+
+
+
+Here's the updated table structure:
+
+```
+CREATE TABLE customer_book_inventory (
+  customer_name text,
+  customer_gender text,
+  purchase_date DATE,
+  book_quantity int,
+  book_name text,
+  total_amount int,
+  mode_of_payment text,
+  current_books set<text>,
+  previous_books set<text>,
+  book_status text,
+  PRIMARY KEY (book_status, customer_name, purchase_date)
+) WITH CLUSTERING ORDER BY (customer_name ASC, purchase_date DESC);
+```
+
+In this updated table:
+
+- `current_books` is a set that stores the current books borrowed by the customer.
+- `previous_books` is a set that stores the previous books borrowed by the customer.
+
+You can insert data into this table like this:
+
+```
+INSERT INTO customer_book_inventory (customer_name, customer_gender, purchase_date, book_quantity, book_name, total_amount, mode_of_payment, current_books, previous_books, book_status)
+VALUES ('John Doe', 'Male', '2022-01-01', 2, 'Book A', 50, 'Credit Card', {'Book A', 'Book B'}, {'Book C', 'Book D'}, 'Not Returned');
+```
+
+You can query the data based on the book status like this:
+
+```
+SELECT * FROM customer_book_inventory 
+WHERE book_status = 'Returned';
+
+SELECT * FROM customer_book_inventory 
+WHERE book_status = 'Not Returned';
+```
+
+
+Here are some sample rows to insert into the `customer_book_inventory` table:
+
+```
+INSERT INTO customer_book_inventory (customer_name, customer_gender, purchase_date, book_quantity, book_name, total_amount, mode_of_payment, current_books, previous_books, book_status)
+VALUES ('John Doe', 'Male', '2022-01-01', 2, 'Book A', 50, 'Credit Card', {'Book A', 'Book B'}, {'Book C', 'Book D'}, 'Not Returned');
+
+INSERT INTO customer_book_inventory (customer_name, customer_gender, purchase_date, book_quantity, book_name, total_amount, mode_of_payment, current_books, previous_books, book_status)
+VALUES ('Jane Doe', 'Female', '2022-02-01', 1, 'Book E', 20, 'Cash', {'Book E'}, {'Book F', 'Book G'}, 'Not Returned');
+
+INSERT INTO customer_book_inventory (customer_name, customer_gender, purchase_date, book_quantity, book_name, total_amount, mode_of_payment, current_books, previous_books, book_status)
+VALUES ('John Doe', 'Male', '2022-03-01', 0, 'None', 0, 'None', {}, {'Book A', 'Book B', 'Book C', 'Book D'}, 'Returned');
+
+INSERT INTO customer_book_inventory (customer_name, customer_gender, purchase_date, book_quantity, book_name, total_amount, mode_of_payment, current_books, previous_books, book_status)
+VALUES ('Jane Doe', 'Female', '2022-04-01', 0, 'None', 0, 'None', {}, {'Book E', 'Book F', 'Book G'}, 'Returned');
+```
+
+These inserts demonstrate how to add data to the `customer_book_inventory` table with various customer and book details.
+
+You can query the data based on the book status like this:
+
+```
+SELECT * FROM customer_book_inventory 
+WHERE book_status = 'Returned';
+
+SELECT * FROM customer_book_inventory 
+WHERE book_status = 'Not Returned';
+```
+
+
+Here's the updated schema:
+
+```
+CREATE TABLE library.customer_info (
+  customer_gender text,
+  customer_name text,
+  customer_email text,
+  customer_membership_status text,
+  customer_mobile text,
+  cutomer_age text,
+  PRIMARY KEY ((customer_gender, customer_name))
+);
+```
+
+In this schema:
+
+- `customer_gender` and `customer_name` are the primary keys.
+
+This allows you to efficiently query customers based on their gender and name.
+
+You can insert data into this table like this:
+
+```
+INSERT INTO library.customer_info (customer_gender, customer_name, customer_addr, customer_email, customer_gst_number, customer_membership_status, customer_mobile, customer_password, customer_preferred_language, customer_username)
+VALUES ('Male', 'John Doe', '123 Main St', 'john.doe@example.com', 'GST123456', 'Active', '1234567890', 'password123', 'English', 'johndoe');
+
+INSERT INTO library.customer_info (customer_gender, customer_name, customer_addr, customer_email, customer_gst_number, customer_membership_status, customer_mobile, customer_password, customer_preferred_language, customer_username)
+VALUES ('Female', 'Jane Doe', '456 Elm St', 'jane.doe@example.com', 'GST789012', 'Active', '9876543210', 'password456', 'Spanish', 'janedoe');
+```
+
+You can query the data like this:
+
+```
+SELECT * FROM library.customer_info 
+WHERE customer_gender = 'Male' AND customer_name = 'John Doe';
+
+SELECT * FROM library.customer_info 
+WHERE customer_gender = 'Female' AND customer_name = 'Jane Doe';
+```
+
+Note that with this schema, you can't have multiple rows with the same `customer_gender` and `customer_name`. If you need to store multiple records for the same customer, you might need to reconsider your schema design.
+
+
+Your `customer_info` table looks good. Here's a note:
+
+- You've misspelled `customer_age` as `cutomer_age`. You might want to correct that.
+
+Here's the corrected table:
+
+```
+CREATE TABLE customer_info (
+  customer_gender text,
+  customer_name text,
+  customer_email text,
+  customer_membership_status text,
+  customer_mobile text,
+  customer_age text,
+  PRIMARY KEY ((customer_gender, customer_name))
+);
+```
+
+You can insert data into this table like this:
+
+```
+INSERT INTO library.customer_info (customer_gender, customer_name, customer_email, customer_membership_status, customer_mobile, customer_age)
+VALUES ('Male', 'John Doe', 'john.doe@example.com', 'Active', '1234567890', '30');
+
+INSERT INTO library.customer_info (customer_gender, customer_name, customer_email, customer_membership_status, customer_mobile, customer_age)
+VALUES ('Female', 'Jane Doe', 'jane.doe@example.com', 'Active', '9876543210', '25');
+```
+
+You can query the data like this:
+
+```
+SELECT * FROM library.customer_info 
+WHERE customer_gender = 'Male' AND customer_name = 'John Doe';
+
+SELECT * FROM library.customer_info 
+WHERE customer_gender = 'Female' AND customer_name = 'Jane Doe';
+```
+
+
+Here are some sample rows to insert into the `customer_info` table:
+
+```
+INSERT INTO customer_info (customer_gender, customer_name, customer_email, customer_membership_status, customer_mobile, customer_age)
+VALUES ('Male', 'John Doe', 'john.doe@example.com', 'Active', '1234567890', '30');
+
+INSERT INTO customer_info (customer_gender, customer_name, customer_email, customer_membership_status, customer_mobile, customer_age)
+VALUES ('Female', 'Jane Doe', 'jane.doe@example.com', 'Active', '9876543210', '25');
+
+INSERT INTO customer_info (customer_gender, customer_name, customer_email, customer_membership_status, customer_mobile, customer_age)
+VALUES ('Male', 'Rahul Kumar', 'rahul.kumar@example.com', 'Inactive', '7418529630', '35');
+
+INSERT INTO customer_info (customer_gender, customer_name, customer_email, customer_membership_status, customer_mobile, customer_age)
+VALUES ('Female', 'Priya Singh', 'priya.singh@example.com', 'Active', '8529637410', '28');
+
+INSERT INTO customer_info (customer_gender, customer_name, customer_email, customer_membership_status, customer_mobile, customer_age)
+VALUES ('Male', 'Amit Sharma', 'amit.sharma@example.com', 'Active', '9638527410', '32');
+```
+
+These inserts demonstrate how to add data to the `customer_info` table with various customer details.
+
+You can query the data based on the customer gender and name like this:
+
+```
+SELECT * FROM library.customer_info 
+WHERE customer_gender = 'Male' AND customer_name = 'John Doe';
+
+SELECT * FROM library.customer_info 
+WHERE customer_gender = 'Female' AND customer_name = 'Jane Doe';
+```
+
+ INSERT INTO library2.book_info (book_name, book_category, book_published_date, book_author, book_description, book_edition, book_language, book_price, book_publisher) VALUES ('Gatsby', 'Classic', '1925-04-10', 'F. Scott Fitzgerald', 'A novel set in the Jazz Age that explores themes of wealth, love, and the American Dream.', '1st', 'English', '10.99', 'Scribner');

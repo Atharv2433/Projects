@@ -23,7 +23,7 @@ func ConnectionDB() {
 	cluster.RetryPolicy = &gocql.SimpleRetryPolicy{
 		NumRetries: 3,
 	}
-	cluster.Keyspace = "library"
+	cluster.Keyspace = "library2"
 	cluster.Consistency = gocql.One
 	cluster.Authenticator = gocql.PasswordAuthenticator{
 		Username: cassandraUser,

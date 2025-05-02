@@ -1,0 +1,25 @@
+INSERT INTO library.customer_info (
+    customer_id, 
+    customer_name, 
+    customer_membership_status, 
+    customer_addr, 
+    customer_mobile, 
+    customer_email, 
+    customer_gst_number, 
+    customer_username, 
+    customer_password, 
+    customer_preferred_language, 
+    customer_gender
+) VALUES (
+    uuid(),                                -- Generates a new UUID for customer_id
+    'Atharv',                              -- customer_name
+    'Active',                              -- customer_membership_status
+    'Kolhapur',                            -- customer_addr
+    '9021657398',                          -- customer_mobile
+    'atharv@gmail.com',                    -- customer_email
+    '123',                                 -- customer_gst_number
+    'atharv2433',                          -- customer_username
+    'pass123',                             -- customer_password
+    'English',                             -- customer_preferred_language
+    'Male'                                 -- customer_gender
+);

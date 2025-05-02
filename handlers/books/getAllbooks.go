@@ -3,12 +3,14 @@ package handlers
 import (
 	"LibraryManagementSystem/config"
 	"LibraryManagementSystem/models"
+	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v3"
 )
 
 func GetAllBooks(c fiber.Ctx) error {
+
 	if config.Session == nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Database connection not established",
@@ -22,9 +24,9 @@ func GetAllBooks(c fiber.Ctx) error {
 
 	var book models.BookInfo
 	for iter.Scan(
-		&book.BookID,
+		// &book.BookID,
 		&book.BookName,
-		&book.Genre,
+		&book.BookCategory,
 		&book.BookAuthor,
 		&book.BookPrice,
 		&book.BookLanguage,
@@ -33,7 +35,6 @@ func GetAllBooks(c fiber.Ctx) error {
 		&book.BookPublisher,
 		&book.BookDescription,
 	) {
-		// Make a copy of `book` to avoid reference overwrite
 		bookCopy := book
 		books = append(books, bookCopy)
 	}
@@ -45,5 +46,6 @@ func GetAllBooks(c fiber.Ctx) error {
 		})
 	}
 
+	fmt.Println(books)
 	return c.JSON(books)
 }

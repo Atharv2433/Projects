@@ -1,0 +1,39 @@
+Internship Assignments:
+
+Project: Library Inventory
+
+Assignment:
+1.⁠ ⁠Design database schemas for storing following info into Cassandra tables.
+	a. Book Info
+	b. Customer Info
+	c. Customer Book Inventory
+	
+	use case:
+		1. I want to see all the list of books listed in library
+		2. I want to see all the list of customers enrolled in library
+		3. Current and History Book read by the customer.
+		4. Search a particular book in library.
+		
+	Questions:
+	1. Difference between SQL and NoSQL.
+	2. What are your views on use of SQL/NoSQL database for the above usecase? Justify them.
+	3. What are the keys defined for the schemas. What are the points to keep in mind before defining them?
+	
+	
+
+2.⁠ ⁠Create a golang microservice to handle the library inventory.
+	subtask:
+	1. Create API client using gofiber
+	2. Create a GET API to get list of users
+	3. Create a GET API to get list of books
+	4. Create a POST API to create a booking
+	5. Create a PUT API to update the transaction status (return the book).
+	6. Create a GET API to find the book status.
+	
+3.⁠ ⁠Design swagger document for the above API.
+
+4.⁠ ⁠Write unit test cases for the above written code and achieve 80% test coverage.
+
+5.⁠ ⁠Create a UI service using React and MUI.
+		1. Design a UI layout for performing above transactions.
+		2. Integrate UI with the API designed in the above to perform all the above mentioned usecase.

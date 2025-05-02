@@ -1,0 +1,26 @@
+
+INSERT INTO library.customer_info (
+    customer_id,
+    customer_name,
+    customer_membership_status,
+    customer_addr,
+    customer_mobile,
+    customer_email,
+    customer_gst_number,
+    customer_username,
+    customer_password,
+    customer_preferred_language,
+    customer_gender
+) VALUES (
+    uuid(),
+    'Atharv',
+    'Active',
+    'Kolhapur',
+    '9021657398',
+    'atharv@gmail.com',
+    'GSTIN12345678',
+    'atharv2433',
+    'pass123',
+    'English',
+    'Male'
+);

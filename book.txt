@@ -1,0 +1,23 @@
+INSERT INTO library.book_info (
+    book_id,
+    genre,
+    book_published_date,
+    book_name,
+    book_author,
+    book_price,
+    book_language,
+    book_edition,
+    book_publisher,
+    book_description
+) VALUES (
+    uuid(),
+    'Adventure',
+    '2023-09-10',
+    'Journey Beyond',
+    'Ravi Kumar',
+    '19.99',
+    'English',
+    'Second',
+    'Orbit House',
+    'An epic tale of courage and survival.'
+);
